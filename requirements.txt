@@ -1,0 +1,5 @@
+flask
+markdown-it-py
+beautifulsoup4
+livereload
+

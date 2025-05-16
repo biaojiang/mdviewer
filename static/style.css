@@ -1,0 +1,29 @@
+/* static/style.css */
+
+body {
+  font-family: sans-serif;
+  margin: 2rem;
+  background-color: #f6f8fa;
+}
+
+form {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+input[type="text"] {
+  width: 50%;
+  padding: 0.5em;
+  font-size: 1em;
+}
+
+select {
+  padding: 0.4em;
+}
+
+button {
+  padding: 0.5em 1em;
+}
+

@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Search Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <h2>
+      Search Results for "{{ query }}" {% if mode %}({{ mode }}){% endif %}
+    </h2>
+
+    {% if results %}
+    <ul>
+      {% for path in results %}
+      <li>
+        <a href="{{ url_for('view_markdown', filename=path) }}">{{ path }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No matches found.</p>
+    {% endif %}
+
+    <hr />
+    <form action="{{ url_for('search') }}" method="get">
+      <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Search again..."
+      />
+      <select name="mode">
+        <option value="fd" {% if mode == "fd" %}selected{% endif %}>
+          Filename
+        </option>
+        <option value="rg" {% if mode == "rg" %}selected{% endif %}>
+          Content
+        </option>
+      </select>
+      <button type="submit">🔍 Search</button>
+    </form>
+
+    <p><a href="{{ url_for('index') }}">← Back to Index</a></p>
+  </body>
+</html>

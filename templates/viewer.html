@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ filename }}</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css"
+    />
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+        },
+        svg: { fontCache: "global" },
+      };
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+      async
+    ></script>
+
+    <style>
+      body {
+        margin: 2rem;
+        background: #f6f8fa;
+      }
+      .markdown-body {
+        max-width: 800px;
+        margin: auto;
+        padding: 2em;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="markdown-body">{{ content|safe }}</div>
+    <script>
+      document.body.className = localStorage.getItem("theme") || "light";
+      function toggleTheme() {
+        const current = document.body.className;
+        const next = current === "dark" ? "light" : "dark";
+        document.body.className = next;
+        localStorage.setItem("theme", next);
+      }
+    </script>
+  </body>
+</html>

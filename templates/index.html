@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Markdown Browser</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css"
+    />
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+        },
+        svg: { fontCache: "global" },
+      };
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+      async
+    ></script>
+    <style>
+      body {
+        margin: 2rem;
+        font-family: sans-serif;
+        background-color: var(--bg);
+        color: var(--fg);
+      }
+
+      ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .dark {
+        --bg: #0d1117;
+        --fg: #c9d1d9;
+      }
+
+      .light {
+        --bg: #ffffff;
+        --fg: #000000;
+      }
+
+      .container {
+        max-width: 700px;
+        margin: auto;
+      }
+
+      #search {
+        width: 100%;
+        padding: 0.5em;
+        margin-bottom: 1em;
+      }
+
+      .toggle {
+        float: right;
+      }
+
+      /* 🔽 Add this part for file tree layout */
+      #file-tree {
+        padding-left: 0.5em;
+        font-family: monospace;
+      }
+
+      details summary {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body class="light">
+    <div class="container">
+      <h2>
+        Markdown Files
+        <button class="toggle" onclick="toggleTheme()">🌓 Theme</button>
+      </h2>
+      <div
+        style="
+          display: flex;
+          gap: 0.5em;
+          align-items: center;
+          margin-bottom: 1em;
+        "
+      >
+        <input
+          id="plain-search"
+          type="text"
+          placeholder="Filter file tree..."
+        />
+        <button type="button" id="clear-search">Reset</button>
+      </div>
+      <form
+        action="{{ url_for('search') }}"
+        method="get"
+        style="margin-bottom: 1em"
+      >
+        <input type="text" name="q" placeholder="Search files or content..." />
+        <select name="mode">
+          <option value="fd">Filename</option>
+          <option value="rg">Content</option>
+        </select>
+        <button type="submit">🔍 Search</button>
+      </form>
+      {% macro render_tree(tree) %}
+      <ul>
+        {% for name, value in tree.items() %} {% if value is mapping %}
+        <li>
+          <details>
+            <summary>{{ name }}</summary>
+            {{ render_tree(value) }}
+          </details>
+        </li>
+        {% else %}
+        <li>
+          <a href="{{ url_for('view_markdown', filename=value) }}"
+            >{{ name }}</a
+          >
+        </li>
+        {% endif %} {% endfor %}
+      </ul>
+      {% endmacro %}
+
+      <!-- Call the macro outside to render tree -->
+      <div id="file-tree">{{ render_tree(tree) }}</div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
