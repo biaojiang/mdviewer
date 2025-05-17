@@ -5,7 +5,15 @@
     <title>{{ filename }}</title>
     <link
       rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
     <script>
       MathJax = {
@@ -39,7 +47,62 @@
     </style>
   </head>
   <body>
-    <div class="markdown-body">{{ content|safe }}</div>
+    <div id="breadcrumb">
+      <i class="fas fa-house"></i> <a href="{{ url_for('index') }}">Home</a> {%
+      if filename %} / {% set parts = filename.split('/') %} {% for i in
+      range(parts|length) %} {% set subpath = parts[:i+1]|join('/') %} {% if i +
+      1 < parts|length %} / <i class="fas fa-folder"></i>
+      <a href="{{ url_for('view_markdown', filename=subpath) }}"
+        >{{ parts[i] }}</a
+      >
+      {% else %} / <i class="fas fa-file-alt"></i> <span>{{ parts[i] }}</span>
+      {% endif %} {% endfor %} {% endif %}
+    </div>
+
+    <style>
+      @media print {
+        #breadcrumb {
+          display: none !important;
+        }
+      }
+    </style>
+
+    <!-- Folder listing -->
+    {% if entries %}
+    <div id="content">
+      <h3>📂 Directory: {{ filename }}</h3>
+      <ul>
+        {% for name, path in entries %}
+        <li>
+          {% if name.endswith('/') %} <i class="fas fa-folder"></i>
+          <a href="{{ url_for('view_markdown', filename=path) }}"
+            >{{ name[:-1] }}</a
+          >
+          {% else %} <i class="fas fa-file-alt"></i>
+          <a href="{{ url_for('view_markdown', filename=path) }}">{{ name }}</a>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <button
+      onclick="window.print()"
+      id="print-btn"
+      style="display: inline-block"
+      title="Export to PDF"
+    >
+      <i class="fas fa-print"></i> Export
+    </button>
+    <style>
+      @media print {
+        #print-btn {
+          display: none !important;
+        }
+      }
+    </style>
+    <div id="content" class="markdown-body">{{ content|safe }}</div>
     <script>
       document.body.className = localStorage.getItem("theme") || "light";
       function toggleTheme() {

@@ -8,6 +8,9 @@ A local Markdown documentation browser that:
 - Supports filename/content search using `fd` or `rg`
 - Auto-reloads edited files
 - Dark/light mode toggle
+- Export/Print to PDF
+- Breadcrumb navigation with folder/file icons
+- Highlights current file in tree and auto-expands
 
 ---
 
@@ -22,6 +25,10 @@ A local Markdown documentation browser that:
 - ✅ Flask-based local webserver
 - ✅ MathJax support for LaTeX
 - ✅ Reload current buffer on changes (with `livereload`)
+- ✅ Font Awesome icons for folders/files
+- ✅ Breadcrumb that reflects navigation path
+- ✅ Highlight + auto-expand tree for active file
+- ✅ PDF/Print export button with clean print CSS
 
 ---
 
@@ -101,6 +108,9 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000/) in your browser.
 - ⌨️ Live tree filter with reset
 - 🗂 Expandable nested folders
 - 🔗 Click to render `.md` file in browser
+- 🖨 Export/Print to PDF button
+- 📁 Breadcrumb with Font Awesome icons
+- 📄 Highlight + expand tree for active file
 
 ---
 

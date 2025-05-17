@@ -54,22 +54,49 @@ def serve_file(filepath):
 @app.route("/view/<path:filename>")
 def view_markdown(filename):
     full_path = os.path.abspath(os.path.join(MARKDOWN_ROOT, filename))
-    if not full_path.startswith(MARKDOWN_ROOT) or not os.path.isfile(full_path):
+
+    if not full_path.startswith(MARKDOWN_ROOT):
+        abort(403)
+
+    if os.path.isdir(full_path):
+        entries = []
+        for item in sorted(os.listdir(full_path)):
+            if item.startswith("."):
+                continue  # Skip hidden files
+            item_path = os.path.join(filename, item)
+            if os.path.isdir(os.path.join(MARKDOWN_ROOT, item_path)):
+                entries.append((item + "/", item_path))
+            elif item.endswith(".md"):
+                entries.append((item, item_path))
+        return render_template(
+            "viewer.html",
+            folder=filename,
+            entries=entries,
+            content=None,
+            filename=filename,
+        )
+
+    elif os.path.isfile(full_path):
+        with open(full_path, encoding="utf-8") as f:
+            content_md = f.read()
+            html = md.render(content_md)
+
+        # Fix image paths
+        soup = BeautifulSoup(html, "html.parser")
+        for img in soup.find_all("img"):
+            src = img.get("src")
+            if src and not src.startswith("http") and not src.startswith("/files/"):
+                img_path = os.path.normpath(
+                    os.path.join(os.path.dirname(filename), src)
+                )
+                img["src"] = f"/files/{img_path}"
+
+        return render_template(
+            "viewer.html", content=str(soup), entries=None, filename=filename
+        )
+
+    else:
         abort(404)
-
-    with open(full_path, encoding="utf-8") as f:
-        content_md = f.read()
-        html = md.render(content_md)
-
-    # Rewriting image paths
-    soup = BeautifulSoup(html, "html.parser")
-    for img in soup.find_all("img"):
-        src = img.get("src")
-        if not src.startswith("http") and not src.startswith("/files/"):
-            img_path = os.path.normpath(os.path.join(os.path.dirname(filename), src))
-            img["src"] = f"/files/{img_path}"
-
-    return render_template("viewer.html", content=str(soup), filename=filename)
 
 
 # Search functionality
