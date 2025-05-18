@@ -35,7 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
           if (details) {
             const ul = details.querySelector("ul");
             const childMatch = filterTree(query, ul);
-            const summaryMatch = summary && summary.textContent.toLowerCase().includes(query);
+            const summaryMatch =
+              summary && summary.textContent.toLowerCase().includes(query);
             const match = childMatch || summaryMatch;
             details.open = match;
             li.style.display = match ? "list-item" : "none";
@@ -65,8 +66,8 @@ document.addEventListener("DOMContentLoaded", function () {
   if (contentDiv) {
     function loadContent(url) {
       fetch(url)
-        .then(res => res.text())
-        .then(html => {
+        .then((res) => res.text())
+        .then((html) => {
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, "text/html");
           const newContent = doc.getElementById("content");
@@ -77,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    document.querySelectorAll("#file-tree a").forEach(link => {
+    document.querySelectorAll("#file-tree a").forEach((link) => {
       link.addEventListener("click", function (e) {
         e.preventDefault();
         const url = this.getAttribute("href");
@@ -91,6 +92,34 @@ document.addEventListener("DOMContentLoaded", function () {
         loadContent(e.state.path);
       }
     });
+
+    if (typeof initialFile !== "undefined" && initialFile) {
+      console.log("🚀 Auto-loading:", initialFile);
+      fetch("/view/" + initialFile)
+        .then((res) => {
+          if (res.status === 200) {
+            return res.text();
+          } else {
+            console.warn("⚠️ File not found, skipping auto-load:", initialFile);
+            return null;
+          }
+        })
+        .then((html) => {
+          if (!html) return;
+
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+          const newContent = doc.getElementById("content");
+
+          if (newContent) {
+            contentDiv.innerHTML = newContent.innerHTML;
+            document.title = doc.title;
+
+            setTimeout(() => {
+              highlightInTree("/view/" + initialFile);
+            }, 10);
+          }
+        });
+    }
   }
 });
-

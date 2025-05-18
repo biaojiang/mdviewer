@@ -5,10 +5,16 @@ from flask import Flask, abort, render_template, request, send_from_directory
 from livereload import Server
 from markdown_it import MarkdownIt
 
-from search.fd_search import search_filenames
-from search.rg_search import search_content
+from mdviewer.search.fd_search import search_filenames
+from mdviewer.search.rg_search import search_content
 
-app = Flask(__name__, static_folder="static")
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "templates"),
+    static_folder=os.path.join(BASE_DIR, "static"),
+)
 md = MarkdownIt()
 MARKDOWN_ROOT = os.path.abspath(".")
 EXCLUDED_DIRS = {'.git', '.venv', '__pycache__', 'node_modules', '.ruff_cache'}
@@ -40,7 +46,9 @@ def build_tree(root_dir):
 @app.route("/")
 def index():
     file_tree = build_tree(MARKDOWN_ROOT)
-    return render_template("index.html", tree=file_tree)
+    return render_template(
+        "index.html", tree=file_tree, initial_file=app.config.get("INITIAL_FILE")
+    )
 
 
 @app.route("/files/<path:filepath>")
@@ -113,6 +121,26 @@ def search():
             results = search_filenames(query, MARKDOWN_ROOT)
 
     return render_template("search.html", results=results, query=query, mode=mode)
+
+
+def start_server(markdown_root, open_file=None):
+    global MARKDOWN_ROOT
+    MARKDOWN_ROOT = os.path.abspath(markdown_root)
+    app.config["INITIAL_FILE"] = open_file
+
+    server = Server(app.wsgi_app)
+
+    # 🔁 Watch templates, static files, and markdown
+    server.watch("templates/**/*.html")
+    server.watch("static/**/*.js")
+    server.watch("static/**/*.css")
+    server.watch("**/*.md")
+
+    # print(f"🔄 Serving http://127.0.0.1:5000")
+    if open_file:
+        print(f"📄 Opening file: {open_file}")
+
+    server.serve(port=5000, host="127.0.0.1", debug=True)
 
 
 if __name__ == "__main__":

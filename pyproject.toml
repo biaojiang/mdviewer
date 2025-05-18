@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=80.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mdviewer"
+version = "0.2.0"
+description = "GitHub-style Markdown viewer"
+readme = "README.md"
+authors = [{ name = "Biao Jiang", email = "github@minsignal.com" }]
+license = { text = "MIT" }
+dependencies = [
+  "flask",
+  "livereload",
+  "markdown-it-py",
+  "beautifulsoup4"
+]
+
+[project.scripts]
+mdviewer = "mdviewer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

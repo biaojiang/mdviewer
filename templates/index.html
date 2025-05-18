@@ -120,6 +120,10 @@
       <!-- Call the macro outside to render tree -->
       <div id="file-tree">{{ render_tree(tree) }}</div>
     </div>
+    <script>
+      const initialFile = "{{ initial_file | default('') }}";
+    </script>
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>

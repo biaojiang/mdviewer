@@ -1,0 +1,47 @@
+import argparse
+import os
+import webbrowser
+from mdviewer.app import start_server  # make app.py expose a `start_server(path)`
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog="mdv", description="📘 mdviewer — GitHub-style Markdown viewer"
+    )
+    parser.add_argument(
+        "target", nargs="?", default="README.md", help="Markdown file or folder to view"
+    )
+    parser.add_argument(
+        "-o",
+        "--open",
+        action="store_true",
+        help="Open in browser after starting server (default: off)",
+    )
+
+    args = parser.parse_args()
+
+    # Expand ~ and resolve absolute path
+    target = os.path.abspath(os.path.expanduser(args.target))
+
+    if not os.path.exists(target):
+        print(f"❌ Error: Path not found: {target}")
+        return
+
+    # Determine root (folder) and optional file
+    root = target if os.path.isdir(target) else os.path.dirname(target)
+    open_file = target if os.path.isfile(target) else None
+
+    print(f"📂 Serving: {root}")
+
+    start_server(markdown_root=root, open_file=open_file)
+
+    print("🌐 Open in browser: http://127.0.0.1:5000")
+    print("🛑 Press Ctrl-C to stop server.")
+    print("❗ Remember to close the browser tab before restarting.")
+
+    if args.open:
+        webbrowser.open_new_tab("http://127.0.0.1:5000")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,5 +1,11 @@
 # 📝 Markdown Viewer (GitHub-Style)
 
+[![PyPI](https://img.shields.io/pypi/v/mdviewer.svg)](https://pypi.org/project/mdviewer)
+[![Homebrew](https://img.shields.io/badge/Homebrew-mdviewer-blue)](https://github.com/yourusername/homebrew-mdviewer)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+A GitHub-style Markdown viewer for local docs, with file tree, search, and live reload.
+
 A local Markdown documentation browser that:
 
 - Renders `.md` files with GitHub-flavored styles
@@ -11,6 +17,51 @@ A local Markdown documentation browser that:
 - Export/Print to PDF
 - Breadcrumb navigation with folder/file icons
 - Highlights current file in tree and auto-expands
+
+## 🚀 Installation
+
+### 🔧 Option 1: Homebrew (macOS/Linux)
+
+```bash
+brew tap biaojiang/mdviewer
+brew install mdviewer
+```
+
+### 🐍 Option 2: Python (via pip)
+
+```
+pip install mdviewer
+```
+
+**Optionally add an alias:**
+
+```bash
+echo 'alias mdv="mdviewer"' >> ~/.zshrc
+source ~/.zshrc
+# or symlink
+sudo ln -s $(which mdviewer) /usr/local/bin/mdv
+```
+
+### 🔧 Option 3: Build from Source
+
+```sh
+# Install Python deps
+pip install -r requirements.txt
+
+# Optional: use a venv
+python -m venv .venv
+source .venv/bin/activate
+
+# Install tools if needing advanced search
+brew install fd ripgrep
+# or
+sudo apt install fd-find ripgrep
+
+# ▶️ Run the Server
+python app.py
+
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000/) in your browser.
+```
 
 ---
 
@@ -36,54 +87,27 @@ A local Markdown documentation browser that:
 
 ```text
 .
-├── app.py
-├── docs/
-│   └── math/
-│       ├── math-test.md
-│       └── images/
-│           └── plot.png
-├── static/
-│   ├── script.js
-│   └── style.css
-├── templates/
-│   ├── index.html
-│   ├── search.html
-│   └── viewer.html
-├── search/
-│   ├── __init__.py
-│   ├── fd_search.py
-│   └── rg_search.py
+├── docs
+│   └── math
+│       └── math-test.md
+├── pyproject.toml
 ├── README.md
 ├── requirements.txt
-└── screenshot.png
+├── screenshot.png
+├── src
+│   ├── mdviewer
+│   │   ├── __init__.py
+│   │   ├── app.py
+│   │   ├── cli.py
+│   │   └── search
+├── static
+│   ├── script.js
+│   └── style.css
+└── templates
+    ├── index.html
+    ├── search.html
+    └── viewer.html
 ```
----
-
-## 🔧 Setup
-
-```sh
-# Install Python deps
-pip install -r requirements.txt
-
-# Optional: use a venv
-python -m venv .venv
-source .venv/bin/activate
-
-# Install tools
-brew install fd ripgrep
-# or
-sudo apt install fd-find ripgrep
-```
-
----
-
-## ▶️ Run the Server
-
-```sh
-python app.py
-```
-
-Open [http://127.0.0.1:5000](http://127.0.0.1:5000/) in your browser.
 
 ---
 
@@ -91,14 +115,6 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000/) in your browser.
 
 - `fd`: fuzzy filename match (fast)
 - `rg`: full-text content match (powerful)
-
-### Example
-
-```sh
-/search?q\=math&mode\=fd
-
-/search?q\=matrix&mode\=rg
-```
 
 ---
 
