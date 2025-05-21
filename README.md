@@ -3,6 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/mdviewer.svg)](https://pypi.org/project/mdviewer)
 [![Homebrew](https://img.shields.io/badge/Homebrew-mdviewer-blue)](https://github.com/yourusername/homebrew-mdviewer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![PyPI Downloads](https://static.pepy.tech/badge/mdviewer)](https://pepy.tech/projects/mdviewer)
 
 A GitHub-style Markdown viewer for local docs, with file tree, search, and live reload.
 
@@ -17,6 +18,12 @@ A local Markdown documentation browser that:
 - Export/Print to PDF
 - Breadcrumb navigation with folder/file icons
 - Highlights current file in tree and auto-expands
+
+## 🔍 Preview
+
+`mdviewer` opens a clean, local browser UI to view Markdown files — with a collapsible file tree, file filtering, fuzzy search, and full-text content search built in.
+
+![Screenshot showing file tree and search](screenshot.png)
 
 ## 🚀 Installation
 
@@ -94,19 +101,24 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000/) in your browser.
 ├── README.md
 ├── requirements.txt
 ├── screenshot.png
-├── src
-│   ├── mdviewer
-│   │   ├── __init__.py
-│   │   ├── app.py
-│   │   ├── cli.py
-│   │   └── search
-├── static
-│   ├── script.js
-│   └── style.css
-└── templates
-    ├── index.html
-    ├── search.html
-    └── viewer.html
+└── src
+    ├── mdviewer
+    │   ├── __init__.py
+    │   ├── app.py
+    │   ├── cli.py
+    │   ├── search
+    │   │   ├── __init__.py
+    │   │   ├── __pycache__
+    │   │   ├── fd_search.py
+    │   │   └── rg_search.py
+    │   ├── static
+    │   │   ├── script.js
+    │   │   └── style.css
+    │   └── templates
+    │       ├── index.html
+    │       ├── search.html
+    │       └── viewer.html
+    └── 
 ```
 
 ---

@@ -32,6 +32,9 @@ def main():
     open_file = target if os.path.isfile(target) else None
 
     print(f"📂 Serving: {root}")
+    print("🛑 Press Ctrl-C to stop server.")
+    print("❗ Tip: Close the browser tab before restarting the server.")
+    print("   Leaving it open may cause 'localhost access denied' errors.")
 
     start_server(markdown_root=root, open_file=open_file)
 
