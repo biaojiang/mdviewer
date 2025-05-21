@@ -8,7 +8,7 @@ from markdown_it import MarkdownIt
 from mdviewer.search.fd_search import search_filenames
 from mdviewer.search.rg_search import search_content
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+BASE_DIR = os.path.dirname(__file__)
 
 app = Flask(
     __name__,
