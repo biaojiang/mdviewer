@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/mdviewer.svg)](https://pypi.org/project/mdviewer)
 [![Homebrew](https://img.shields.io/badge/Homebrew-mdviewer-blue)](https://github.com/yourusername/homebrew-mdviewer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![PyPI - Downloads](https://pepy.tech/badge/mdviewer/week)
+[![PyPI Downloads](https://static.pepy.tech/badge/mdviewer)](https://pepy.tech/projects/mdviewer)
 
 A GitHub-style Markdown viewer for local docs, with file tree, search, and live reload.
 
