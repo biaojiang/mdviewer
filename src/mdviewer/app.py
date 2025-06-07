@@ -15,7 +15,7 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, "templates"),
     static_folder=os.path.join(BASE_DIR, "static"),
 )
-md = MarkdownIt()
+md = MarkdownIt().enable("table", "strikethrough")
 MARKDOWN_ROOT = os.path.abspath(".")
 EXCLUDED_DIRS = {'.git', '.venv', '__pycache__', 'node_modules', '.ruff_cache'}
 

@@ -72,6 +72,19 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000/) in your browser.
 
 ---
 
+## 🛠️ Usage
+```bash
+mdviewer [PATH] or mdv [PATH]
+
+# e.g.:
+mdv # to start in current directory, there will be a warning if no README.md found
+mdv .
+mdv /path/to/README.md
+mdv 
+```
+
+---
+
 ## 🚀 Features
 
 - ✅ GitHub-style rendering via `markdown-it-py` + GitHub CSS
