@@ -15,7 +15,21 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, "templates"),
     static_folder=os.path.join(BASE_DIR, "static"),
 )
-md = MarkdownIt()
+
+# Use GitHub-style Markdown rendering
+md = (
+    MarkdownIt(
+        "commonmark",
+        {
+            "html": True,
+            "linkify": True,
+            "typographer": True,
+        },
+    )
+    .enable("table")
+    .enable("strikethrough")
+    .enable("tasklist")
+)
 MARKDOWN_ROOT = os.path.abspath(".")
 EXCLUDED_DIRS = {'.git', '.venv', '__pycache__', 'node_modules', '.ruff_cache'}
 
