@@ -74,7 +74,7 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000/) in your browser.
 
 ## 🚀 Features
 
-- ✅ GitHub-style rendering via `markdown-it-py` + GitHub CSS
+- ✅ GitHub-style rendering using `MarkdownIt("gfm-like")` + GitHub CSS
 - ✅ Auto-expandable file tree using `<details>`
 - ✅ Live filtering with reset button
 - ✅ Backend-powered search:
