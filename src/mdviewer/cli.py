@@ -9,16 +9,21 @@ def main():
         prog="mdv", description="📘 mdviewer — GitHub-style Markdown viewer"
     )
     parser.add_argument(
-        "target", nargs="?", default="README.md", help="Markdown file or folder to view"
-    )
-    parser.add_argument(
         "-o",
         "--open",
         action="store_true",
         help="Open in browser after starting server (default: off)",
     )
+    parser.add_argument(
+        "target", nargs="?", default="README.md", help="Markdown file or folder to view"
+    )
+    parser.add_argument(
+        "--version", action='store_true', help="output version information and exit"
+    )
 
     args = parser.parse_args()
+    if args.version:
+        _version_and_exit()
 
     # Expand ~ and resolve absolute path
     target = os.path.abspath(os.path.expanduser(args.target))
@@ -44,6 +49,14 @@ def main():
 
     if args.open:
         webbrowser.open_new_tab("http://127.0.0.1:5000")
+
+
+def _version_and_exit():
+    # pylint: disable=import-outside-toplevel
+    from importlib.metadata import version as get_version
+    import sys
+    print(f"mdviewer {get_version('mdviewer')}")
+    sys.exit(0)
 
 
 if __name__ == "__main__":
