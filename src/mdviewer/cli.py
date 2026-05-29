@@ -9,13 +9,13 @@ def main():
         prog="mdv", description="📘 mdviewer — GitHub-style Markdown viewer"
     )
     parser.add_argument(
+        "target", nargs="?", default="README.md", help="Markdown file or folder to view"
+    )
+    parser.add_argument(
         "-o",
         "--open",
         action="store_true",
         help="Open in browser after starting server (default: off)",
-    )
-    parser.add_argument(
-        "target", nargs="?", default="README.md", help="Markdown file or folder to view"
     )
     parser.add_argument(
         "--version", action='store_true', help="output version information and exit"
