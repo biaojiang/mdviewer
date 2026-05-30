@@ -1,12 +1,15 @@
 import argparse
 import os
 import webbrowser
+from importlib.metadata import version
+
 from mdviewer.app import find_available_port, start_server
 
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="mdv", description="📘 mdviewer — GitHub-style Markdown viewer"
+        description="📘 mdviewer — GitHub-style Markdown viewer",
+        epilog="Command aliases: mdviewer, mdv",
     )
     parser.add_argument(
         "target", nargs="?", default="README.md", help="Markdown file or folder to view"
@@ -23,6 +26,13 @@ def main():
         type=int,
         default=5000,
         help="Port to serve on (default: 5000; uses the next free port if busy)",
+    )
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=f"%(prog)s {version('mdviewer')}",
+        help="output version information and exit",
     )
 
     args = parser.parse_args()

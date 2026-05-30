@@ -35,6 +35,7 @@ Issues = "https://github.com/biaojiang/mdviewer/issues"
 
 [project.scripts]
 mdviewer = "mdviewer.cli:main"
+mdv = "mdviewer.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
