@@ -1,7 +1,7 @@
 import argparse
 import os
 import webbrowser
-from mdviewer.app import start_server  # make app.py expose a `start_server(path)`
+from mdviewer.app import find_available_port, start_server
 
 
 def main():
@@ -17,6 +17,13 @@ def main():
         action="store_true",
         help="Open in browser after starting server (default: off)",
     )
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        default=5000,
+        help="Port to serve on (default: 5000; uses the next free port if busy)",
+    )
 
     args = parser.parse_args()
 
@@ -29,21 +36,22 @@ def main():
 
     # Determine root (folder) and optional file
     root = target if os.path.isdir(target) else os.path.dirname(target)
-    open_file = target if os.path.isfile(target) else None
+    open_file = os.path.relpath(target, root) if os.path.isfile(target) else None
+    host = "127.0.0.1"
+    port = find_available_port(host, args.port)
 
     print(f"📂 Serving: {root}")
+    if port != args.port:
+        print(f"⚠️ Port {args.port} is busy, using {port} instead.")
+    print(f"🌐 Open in browser: http://{host}:{port}")
     print("🛑 Press Ctrl-C to stop server.")
     print("❗ Tip: Close the browser tab before restarting the server.")
     print("   Leaving it open may cause 'localhost access denied' errors.")
 
-    start_server(markdown_root=root, open_file=open_file)
-
-    print("🌐 Open in browser: http://127.0.0.1:5000")
-    print("🛑 Press Ctrl-C to stop server.")
-    print("❗ Remember to close the browser tab before restarting.")
-
     if args.open:
-        webbrowser.open_new_tab("http://127.0.0.1:5000")
+        webbrowser.open_new_tab(f"http://{host}:{port}")
+
+    start_server(markdown_root=root, open_file=open_file, port=port)
 
 
 if __name__ == "__main__":

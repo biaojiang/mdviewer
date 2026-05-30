@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mdviewer"
-version = "0.2.3"
+version = "0.3.0"
 description = "GitHub-style Markdown viewer"
 readme = "README.md"
-authors = [{ name = "Biao Jiang", email = "github@minsignal.com" }]
+authors = [{ name = "Biao Jiang", email = "info@plotsignal.com" }]
 license = { text = "MIT" }
 dependencies = [
   "flask",
@@ -45,4 +45,3 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "mdviewer" = ["templates/*.html", "static/*.css", "static/*.js"]
-

@@ -1,4 +1,7 @@
+import errno
 import os
+import re
+import socket
 
 from bs4 import BeautifulSoup
 from flask import Flask, abort, render_template, request, send_from_directory
@@ -18,6 +21,48 @@ app = Flask(
 md = MarkdownIt().enable("table", "strikethrough")
 MARKDOWN_ROOT = os.path.abspath(".")
 EXCLUDED_DIRS = {'.git', '.venv', '__pycache__', 'node_modules', '.ruff_cache'}
+
+
+def find_available_port(host, preferred_port):
+    port = preferred_port
+    while port < 65536:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            try:
+                sock.bind((host, port))
+            except OSError as exc:
+                if exc.errno != errno.EADDRINUSE:
+                    raise
+                port += 1
+            else:
+                return port
+    raise OSError(f"No available ports found starting at {preferred_port}")
+
+
+def slugify_heading(text):
+    text = text.strip().lower()
+    text = re.sub(r"[^\w\s-]", "", text)
+    text = re.sub(r"\s+", "-", text)
+    text = re.sub(r"-+", "-", text).strip("-")
+    return text or "section"
+
+
+def add_heading_ids(soup):
+    used_ids = {tag["id"] for tag in soup.find_all(id=True)}
+
+    for heading in soup.find_all(["h1", "h2", "h3", "h4", "h5", "h6"]):
+        if heading.get("id"):
+            continue
+
+        base_id = slugify_heading(heading.get_text())
+        heading_id = base_id
+        index = 1
+
+        while heading_id in used_ids:
+            heading_id = f"{base_id}-{index}"
+            index += 1
+
+        heading["id"] = heading_id
+        used_ids.add(heading_id)
 
 
 # build_tree function to create a directory tree
@@ -63,7 +108,7 @@ def serve_file(filepath):
 def view_markdown(filename):
     full_path = os.path.abspath(os.path.join(MARKDOWN_ROOT, filename))
 
-    if not full_path.startswith(MARKDOWN_ROOT):
+    if os.path.commonpath([MARKDOWN_ROOT, full_path]) != MARKDOWN_ROOT:
         abort(403)
 
     if os.path.isdir(full_path):
@@ -91,6 +136,7 @@ def view_markdown(filename):
 
         # Fix image paths
         soup = BeautifulSoup(html, "html.parser")
+        add_heading_ids(soup)
         for img in soup.find_all("img"):
             src = img.get("src")
             if src and not src.startswith("http") and not src.startswith("/files/"):
@@ -123,10 +169,12 @@ def search():
     return render_template("search.html", results=results, query=query, mode=mode)
 
 
-def start_server(markdown_root, open_file=None):
+def start_server(markdown_root, open_file=None, port=5000):
     global MARKDOWN_ROOT
     MARKDOWN_ROOT = os.path.abspath(markdown_root)
     app.config["INITIAL_FILE"] = open_file
+    host = "127.0.0.1"
+    active_port = find_available_port(host, port)
 
     server = Server(app.wsgi_app)
 
@@ -136,14 +184,17 @@ def start_server(markdown_root, open_file=None):
     server.watch("static/**/*.css")
     server.watch("**/*.md")
 
-    # print(f"🔄 Serving http://127.0.0.1:5000")
+    if active_port != port:
+        print(f"⚠️ Port {port} is busy, using {active_port} instead.")
     if open_file:
         print(f"📄 Opening file: {open_file}")
 
-    server.serve(port=5000, host="127.0.0.1", debug=True)
+    server.serve(port=active_port, host=host, debug=True)
 
 
 if __name__ == "__main__":
+    host = "127.0.0.1"
+    port = find_available_port(host, 5000)
     server = Server(app.wsgi_app)
 
     # Watch all .md files starting from the project root
@@ -156,4 +207,6 @@ if __name__ == "__main__":
     server.watch("static/*.js")
     # server.watch("static/*.css")
 
-    server.serve(port=5000, debug=True)
+    if port != 5000:
+        print(f"⚠️ Port 5000 is busy, using {port} instead.")
+    server.serve(port=port, host=host, debug=True)
