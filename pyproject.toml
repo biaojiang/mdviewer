@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mdviewer"
-version = "0.3.0"
+version = "0.3.1"
 description = "GitHub-style Markdown viewer"
 readme = "README.md"
 authors = [{ name = "Biao Jiang", email = "info@plotsignal.com" }]
-license = { text = "MIT" }
+license = "MIT"
 dependencies = [
   "flask",
   "livereload",
@@ -19,7 +19,6 @@ dependencies = [
 requires-python = ">=3.8"
 keywords = ["markdown", "cli", "viewer", "html"]
 classifiers = [
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Topic :: Utilities",
   "Environment :: Console",
