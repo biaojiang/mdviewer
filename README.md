@@ -88,6 +88,7 @@ mdv
 ## 🚀 Features
 
 - ✅ GitHub-style rendering via `markdown-it-py` + GitHub CSS
+- ✅ Footnote references with links to definitions and return links
 - ✅ Auto-expandable file tree using `<details>`
 - ✅ Live filtering with reset button
 - ✅ Backend-powered search:

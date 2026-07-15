@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from flask import Flask, abort, render_template, request, send_from_directory
 from livereload import Server
 from markdown_it import MarkdownIt
+from mdit_py_plugins.footnote import footnote_plugin
 
 from mdviewer.search.fd_search import search_filenames
 from mdviewer.search.rg_search import search_content
@@ -18,7 +19,7 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, "templates"),
     static_folder=os.path.join(BASE_DIR, "static"),
 )
-md = MarkdownIt().enable("table", "strikethrough")
+md = MarkdownIt().enable("table", "strikethrough").use(footnote_plugin, inline=False)
 MARKDOWN_ROOT = os.path.abspath(".")
 EXCLUDED_DIRS = {'.git', '.venv', '__pycache__', 'node_modules', '.ruff_cache'}
 

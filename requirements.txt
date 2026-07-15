@@ -1,5 +1,5 @@
 flask
 markdown-it-py
+mdit-py-plugins>=0.4.2
 beautifulsoup4
 livereload
-

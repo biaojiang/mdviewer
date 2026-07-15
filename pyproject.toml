@@ -13,6 +13,7 @@ dependencies = [
   "flask",
   "livereload",
   "markdown-it-py",
+  "mdit-py-plugins>=0.4.2",
   "beautifulsoup4"
 ]
 
