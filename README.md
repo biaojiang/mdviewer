@@ -77,10 +77,10 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000/) in your browser.
 mdviewer [PATH] or mdv [PATH]
 
 # e.g.:
-mdv # to start in current directory, there will be a warning if no README.md found
+mdv # serve the current directory and open the browser when Markdown is found
 mdv .
 mdv /path/to/README.md
-mdv 
+mdv --no-open # serve without opening a browser
 ```
 
 ---

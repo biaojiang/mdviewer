@@ -74,3 +74,9 @@ ul i {
   font-size: 0.95em;
 }
 
+/* GitHub Markdown CSS adds brackets around footnote references. The
+   markdown-it footnote renderer already includes them in the link text. */
+.markdown-body .footnote-ref a::before,
+.markdown-body .footnote-ref a::after {
+  content: none !important;
+}
