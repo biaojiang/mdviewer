@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mdviewer"
-version = "0.3.1"
+version = "0.4.0"
 description = "GitHub-style Markdown viewer"
 readme = "README.md"
 authors = [{ name = "Biao Jiang", email = "info@plotsignal.com" }]
