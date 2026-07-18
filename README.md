@@ -25,6 +25,58 @@ A local Markdown documentation browser that:
 
 ![Screenshot showing file tree and search](screenshot.png)
 
+## 🧭 Idea & Architecture
+
+`mdviewer` turns a local folder of Markdown files into a browsable documentation
+site with one command. The files remain the source of truth: the Python server
+discovers and renders them, while the browser provides navigation, search, and
+reading tools.
+
+```mermaid
+flowchart LR
+    User["Reader / author"] --> CLI["mdv PATH<br/>target · port · browser"]
+
+    subgraph Server["Local Python server"]
+        Flask["Flask routes<br/>/ · /view · /search"]
+        Tree["File discovery<br/>recursive .md tree"]
+        Render["Markdown renderer<br/>Markdown → HTML"]
+        Search["Search adapters<br/>fd · rg"]
+        Reload["Live reload<br/>file watcher"]
+
+        Flask --> Tree
+        Flask --> Render
+        Flask --> Search
+        Flask --> Reload
+    end
+
+    subgraph Browser["Browser UI"]
+        Templates["Jinja templates"]
+        Client["Client JavaScript<br/>filter · history · theme"]
+        Document["Rendered document<br/>read · navigate · print"]
+
+        Templates --> Client
+        Client --> Document
+    end
+
+    Files[("Local Markdown folder")] --> Tree
+    Files --> Render
+    CLI --> Flask
+    Flask --> Templates
+    Render --> Document
+    Reload -. refresh .-> Document
+```
+
+```mermaid
+flowchart TB
+    MDV["mdviewer<br/>local documentation browser"]
+
+    MDV --> Discover["Discover<br/>file tree · folders · live filter"]
+    MDV --> Find["Find<br/>filename search · content search"]
+    MDV --> Read["Read<br/>GitHub-style Markdown · math · footnotes"]
+    MDV --> Navigate["Navigate<br/>breadcrumbs · browser history"]
+    MDV --> Iterate["Iterate<br/>live reload · themes · PDF export"]
+```
+
 ## 🚀 Installation
 
 ### 🔧 Option 1: Homebrew (macOS/Linux)
