@@ -1,5 +1,6 @@
-flask
+flask>=2.0
 markdown-it-py
 mdit-py-plugins>=0.4.2
 beautifulsoup4
 livereload
+regex>=2023.10.3

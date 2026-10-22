@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import shutil
 import tempfile
@@ -20,7 +19,7 @@ class SearchBoundaryTest(unittest.TestCase):
         for search, target, prefix in cases:
             for query in ["--exec=/bin/rm", "--pre=/bin/sh", "-e", "--", "guide.*"]:
                 with self.subTest(search=search.__name__, query=query):
-                    with patch(target) as run:
+                    with patch("shutil.which", side_effect=lambda name: name), patch(target) as run:
                         run.return_value.stdout = "/docs/guide.md\n"
                         self.assertEqual(search(query, "/docs"), ["guide.md"])
                         suffix = [query, "/docs"] if search is search_filenames else [query, "--", "/docs"]

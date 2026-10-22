@@ -2,12 +2,15 @@ import errno
 import os
 import re
 import socket
+from contextlib import contextmanager
 
 from bs4 import BeautifulSoup
-from flask import Flask, abort, render_template, request, send_from_directory
+from flask import Flask, abort, render_template, request, send_file
 from livereload import Server
 from markdown_it import MarkdownIt
 from mdit_py_plugins.footnote import footnote_plugin
+
+from mdviewer.safe_paths import document_root, open_document
 
 from mdviewer.search.fd_search import search_filenames
 from mdviewer.search.rg_search import search_content
@@ -19,7 +22,11 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, "templates"),
     static_folder=os.path.join(BASE_DIR, "static"),
 )
-md = MarkdownIt().enable("table", "strikethrough").use(footnote_plugin, inline=False)
+md = (
+    MarkdownIt("commonmark", {"html": False})
+    .enable("table", "strikethrough")
+    .use(footnote_plugin, inline=False)
+)
 MARKDOWN_ROOT = os.path.abspath(".")
 EXCLUDED_DIRS = {'.git', '.venv', '__pycache__', 'node_modules', '.ruff_cache'}
 
@@ -66,26 +73,33 @@ def add_heading_ids(soup):
         used_ids.add(heading_id)
 
 
-# build_tree function to create a directory tree
+@contextmanager
+def document_path(relative=""):
+    try:
+        with open_document(MARKDOWN_ROOT, relative) as opened:
+            yield opened
+    except PermissionError:
+        abort(403)
+    except (FileNotFoundError, NotADirectoryError):
+        abort(404)
+
+
 def build_tree(root_dir):
-    tree = {}
-    for dirpath, dirnames, filenames in os.walk(root_dir):
-        rel_path = os.path.relpath(dirpath, root_dir)
-
-        # Exclude unwanted directories
-        dirnames[:] = [d for d in dirnames if d not in EXCLUDED_DIRS]
-
-        node = tree
-        if rel_path != ".":
-            for part in rel_path.split(os.sep):
-                node = node.setdefault(part, {})
-
-        for filename in filenames:
-            if filename.endswith(".md"):
-                node[filename] = os.path.relpath(
-                    os.path.join(dirpath, filename), root_dir
-                )
-    return tree
+    def visit(relative):
+        tree = {}
+        try:
+            with open_document(root_dir, relative) as directory:
+                entries = list(directory.entries())
+        except OSError:
+            return tree
+        for name, is_dir in entries:
+            child = relative + "/" + name if relative else name
+            if is_dir and name not in EXCLUDED_DIRS:
+                tree[name] = visit(child)
+            elif not is_dir and name.endswith(".md"):
+                tree[name] = child
+        return tree
+    return visit("")
 
 
 # Flask routes
@@ -99,59 +113,58 @@ def index():
 
 @app.route("/files/<path:filepath>")
 def serve_file(filepath):
-    full_path = os.path.join(MARKDOWN_ROOT, filepath)
-    if not os.path.isfile(full_path):
-        abort(404)
-    return send_from_directory(MARKDOWN_ROOT, filepath)
+    with document_path(filepath) as opened:
+        if opened.is_dir:
+            abort(404)
+        stream = opened.binary_stream()
+    try:
+        response = send_file(stream, download_name=os.path.basename(filepath))
+    except Exception:
+        stream.close()
+        raise
+    response.call_on_close(stream.close)
+    # Raw documents (including HTML and SVG) have no script or origin authority.
+    response.headers["Content-Security-Policy"] = (
+        "sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'"
+    )
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
 
 
 @app.route("/view/<path:filename>")
 def view_markdown(filename):
-    full_path = os.path.abspath(os.path.join(MARKDOWN_ROOT, filename))
+    with document_path(filename) as opened:
+        if opened.is_dir:
+            entries = []
+            for item, is_dir in opened.entries():
+                if item.startswith("."):
+                    continue
+                item_path = filename + "/" + item
+                if is_dir:
+                    entries.append((item + "/", item_path))
+                elif item.endswith(".md"):
+                    entries.append((item, item_path))
+            return render_template(
+                "viewer.html", folder=filename, entries=entries,
+                content=None, filename=filename,
+            )
+        with opened.binary_stream() as stream:
+            content_md = stream.read().decode("utf-8")
+    html = md.render(content_md)
 
-    if os.path.commonpath([MARKDOWN_ROOT, full_path]) != MARKDOWN_ROOT:
-        abort(403)
+    soup = BeautifulSoup(html, "html.parser")
+    add_heading_ids(soup)
+    for img in soup.find_all("img"):
+        src = img.get("src")
+        if src and not src.startswith("http") and not src.startswith("/files/"):
+            img_path = os.path.normpath(
+                os.path.join(os.path.dirname(filename), src)
+            )
+            img["src"] = f"/files/{img_path}"
 
-    if os.path.isdir(full_path):
-        entries = []
-        for item in sorted(os.listdir(full_path)):
-            if item.startswith("."):
-                continue  # Skip hidden files
-            item_path = os.path.join(filename, item)
-            if os.path.isdir(os.path.join(MARKDOWN_ROOT, item_path)):
-                entries.append((item + "/", item_path))
-            elif item.endswith(".md"):
-                entries.append((item, item_path))
-        return render_template(
-            "viewer.html",
-            folder=filename,
-            entries=entries,
-            content=None,
-            filename=filename,
-        )
-
-    elif os.path.isfile(full_path):
-        with open(full_path, encoding="utf-8") as f:
-            content_md = f.read()
-            html = md.render(content_md)
-
-        # Fix image paths
-        soup = BeautifulSoup(html, "html.parser")
-        add_heading_ids(soup)
-        for img in soup.find_all("img"):
-            src = img.get("src")
-            if src and not src.startswith("http") and not src.startswith("/files/"):
-                img_path = os.path.normpath(
-                    os.path.join(os.path.dirname(filename), src)
-                )
-                img["src"] = f"/files/{img_path}"
-
-        return render_template(
-            "viewer.html", content=str(soup), entries=None, filename=filename
-        )
-
-    else:
-        abort(404)
+    return render_template(
+        "viewer.html", content=str(soup), entries=None, filename=filename
+    )
 
 
 # Search functionality
@@ -173,6 +186,7 @@ def search():
 def start_server(markdown_root, open_file=None, port=5000):
     global MARKDOWN_ROOT
     MARKDOWN_ROOT = os.path.abspath(markdown_root)
+    document_root(MARKDOWN_ROOT)
     app.config["INITIAL_FILE"] = open_file
     host = "127.0.0.1"
     active_port = find_available_port(host, port)
@@ -194,6 +208,7 @@ def start_server(markdown_root, open_file=None, port=5000):
 
 
 if __name__ == "__main__":
+    document_root(MARKDOWN_ROOT)
     host = "127.0.0.1"
     port = find_available_port(host, 5000)
     server = Server(app.wsgi_app)
