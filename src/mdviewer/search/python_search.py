@@ -54,7 +54,7 @@ def search_python(query, root, content=False):
             target = relative if '/' in query else relative.rsplit('/', 1)[-1]
             try:
                 if matches(target):
-                    results.append(os.path.normpath(relative))
+                    results.append(relative)
             except TimeoutError:
                 return []
             continue
@@ -68,7 +68,7 @@ def search_python(query, root, content=False):
                 continue
             text = data.decode('utf-8', errors='replace')
             if any(matches(line) for line in text.splitlines()):
-                results.append(os.path.normpath(relative))
+                results.append(relative)
         except TimeoutError:
             return []
         except OSError:

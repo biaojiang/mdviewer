@@ -6,6 +6,8 @@ import stat
 import weakref
 from functools import lru_cache
 
+_ROOTS = weakref.WeakSet()
+
 
 class OpenedPath:
     def __init__(self, fd, directory_path=None):
@@ -120,12 +122,23 @@ class DocumentRoot:
         else:
             self.fd = os.open(self.path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
             self.stack.callback(os.close, self.fd)
-        weakref.finalize(self, self.stack.close)
+        self.finalizer = weakref.finalize(self, self.stack.close)
+        _ROOTS.add(self)
+
+    def close(self):
+        self.finalizer()
 
 
 @lru_cache(maxsize=8)
 def document_root(root):
     return DocumentRoot(root)
+
+
+def close_document_roots():
+    """Release retained directory handles when a server or test shuts down."""
+    for root in list(_ROOTS):
+        root.close()
+    document_root.cache_clear()
 
 
 @contextmanager

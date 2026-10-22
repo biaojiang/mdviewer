@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from mdviewer.safe_paths import document_root
+from mdviewer.safe_paths import close_document_roots, document_root
 from mdviewer.search.fd_search import search_filenames
 from mdviewer.search.rg_search import search_content
 
@@ -13,7 +13,7 @@ class SearchFallbackTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.addCleanup(document_root.cache_clear)
+        self.addCleanup(close_document_roots)
         self.root = Path(self.temp.name) / 'docs'
         self.root.mkdir()
         (self.root / 'nested').mkdir()

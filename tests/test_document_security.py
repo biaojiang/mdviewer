@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from bs4 import BeautifulSoup
-from mdviewer.safe_paths import document_root, open_document
+from mdviewer.safe_paths import close_document_roots, document_root, open_document
 
 viewer = importlib.import_module('mdviewer.app')
 
@@ -15,7 +15,7 @@ class DocumentSecurityTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.addCleanup(document_root.cache_clear)
+        self.addCleanup(close_document_roots)
         self.root = Path(self.temp.name) / 'docs'
         self.root.mkdir()
         self.outside = Path(self.temp.name) / 'outside'

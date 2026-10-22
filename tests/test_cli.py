@@ -3,7 +3,7 @@ from contextlib import ExitStack
 import tempfile
 import unittest
 
-from mdviewer.safe_paths import document_root
+from mdviewer.safe_paths import close_document_roots, document_root
 
 from mdviewer.cli import contains_markdown_files, should_open_browser
 
@@ -11,7 +11,7 @@ from mdviewer.cli import contains_markdown_files, should_open_browser
 class MarkdownDiscoveryTest(unittest.TestCase):
     def test_finds_markdown_files_recursively(self):
         with tempfile.TemporaryDirectory() as root, ExitStack() as cleanup:
-            cleanup.callback(document_root.cache_clear)
+            cleanup.callback(close_document_roots)
             nested = os.path.join(root, "docs")
             os.mkdir(nested)
             with open(os.path.join(nested, "guide.md"), "w", encoding="utf-8"):
@@ -21,7 +21,7 @@ class MarkdownDiscoveryTest(unittest.TestCase):
 
     def test_ignores_excluded_directories(self):
         with tempfile.TemporaryDirectory() as root, ExitStack() as cleanup:
-            cleanup.callback(document_root.cache_clear)
+            cleanup.callback(close_document_roots)
             excluded = os.path.join(root, ".git")
             os.mkdir(excluded)
             with open(os.path.join(excluded, "hidden.md"), "w", encoding="utf-8"):

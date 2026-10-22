@@ -11,7 +11,7 @@ version = "0.4.3"
 description = "GitHub-style Markdown viewer"
 readme = "README.md"
 authors = [{ name = "Biao Jiang", email = "info@plotsignal.com" }]
-license = "MIT"
+license = {text = "MIT"}
 dependencies = [
   "flask>=2.0",
   "livereload",

@@ -16,7 +16,7 @@ def search_content(query, root):
             text=True,
         )
         matches = result.stdout.strip().split("\n")
-        return [os.path.relpath(m, root) for m in matches if m]
+        return [os.path.relpath(m, root).replace(os.sep, "/") for m in matches if m]
     except FileNotFoundError:
         return search_python(query, root, content=True)
     except Exception as e:
