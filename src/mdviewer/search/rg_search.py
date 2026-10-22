@@ -5,7 +5,7 @@ import os
 def search_content(query, root):
     try:
         result = subprocess.run(
-            ["rg", "--files-with-matches", "-i", "-t", "md", query, root],
+            ["rg", "--files-with-matches", "-i", "-t", "md", "-e", query, "--", root],
             capture_output=True,
             text=True,
         )

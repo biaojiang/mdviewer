@@ -5,7 +5,7 @@ import os
 def search_filenames(query, root):
     try:
         result = subprocess.run(
-            ["fd", "--type", "f", "--extension", "md", query, root],
+            ["fd", "--type", "f", "--extension", "md", "--", query, root],
             capture_output=True,
             text=True,
         )
