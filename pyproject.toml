@@ -1,20 +1,24 @@
 [build-system]
-requires = ["setuptools>=80.0"]
+requires = [
+  "setuptools>=61; python_version < '3.9'",
+  "setuptools>=80; python_version >= '3.9'",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "mdviewer"
-version = "0.4.2"
+version = "0.4.3"
 description = "GitHub-style Markdown viewer"
 readme = "README.md"
 authors = [{ name = "Biao Jiang", email = "info@plotsignal.com" }]
-license = "MIT"
+license = {text = "MIT"}
 dependencies = [
-  "flask",
+  "flask>=2.0",
   "livereload",
   "markdown-it-py",
   "mdit-py-plugins>=0.4.2",
-  "beautifulsoup4"
+  "beautifulsoup4",
+  "regex>=2023.10.3"
 ]
 
 requires-python = ">=3.8"

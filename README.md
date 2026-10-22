@@ -12,7 +12,7 @@ A local Markdown documentation browser that:
 - Renders `.md` files with GitHub-flavored styles
 - Displays a recursive file/folder tree
 - Supports live plain-text filtering (client-side)
-- Supports filename/content search using `fd` or `rg`
+- Supports filename/content search with built-in Python search; optionally uses `fd`/`fdfind` or `rg` when installed
 - Auto-reloads edited files
 - Dark/light mode toggle
 - Export/Print to PDF
@@ -92,6 +92,11 @@ brew install biaojiang/mdviewer/mdviewer
 pip install mdviewer
 ```
 
+Search works immediately with no extra tools. If `fd` (or Debian’s `fdfind`)
+and `rg` are on PATH, mdviewer uses them automatically for faster searches.
+Missing tools use the built-in Python backend; no binaries are downloaded.
+
+
 **Optionally add an alias:**
 
 ```bash
@@ -111,7 +116,7 @@ pip install -r requirements.txt
 python -m venv .venv
 source .venv/bin/activate
 
-# Install tools if needing advanced search
+# Optional: install faster search tools
 brew install fd ripgrep
 # or
 sudo apt install fd-find ripgrep
@@ -144,7 +149,7 @@ mdv --no-open # serve without opening a browser
 - ✅ Auto-expandable file tree using `<details>`
 - ✅ Live filtering with reset button
 - ✅ Backend-powered search:
-	- `fd`: fuzzy filename matching
+	- filename regular-expression matching (smart case)
 	- `rg`: content search
 - ✅ Flask-based local webserver
 - ✅ MathJax support for LaTeX
@@ -191,7 +196,7 @@ mdv --no-open # serve without opening a browser
 
 ## 🔍 Search Modes
 
-- `fd`: fuzzy filename match (fast)
+- filename regex search (smart case; optional `fd`/`fdfind` accelerator)
 - `rg`: full-text content match (powerful)
 
 ---
@@ -217,3 +222,32 @@ mdv --no-open # serve without opening a browser
 ## 📄 License
 
 MIT
+
+### Document safety
+
+Raw HTML inside Markdown is displayed as text. Markdown formatting, tables,
+footnotes, math, and images remain supported. Raw files such as HTML and SVG
+are served with a browser sandbox that disables scripts and same-origin access;
+SVG diagrams can still be embedded as images.
+
+Files and folders reached through symlinks inside the served tree are not served
+or listed. The folder explicitly selected on the command line may itself be a
+symlink. This keeps document reads inside the selected folder even when a file
+is replaced while a request is being handled.
+
+### Search backends
+
+Filename searches use regular expressions with smart case: lowercase patterns
+ignore case; patterns containing uppercase letters are case-sensitive. Content
+searches are case-insensitive and match individual lines. Queries beginning with
+`-` remain search patterns.
+
+The Python fallback searches `.md` files, skips hidden entries and the viewer's
+excluded directories, and never follows descendant symlinks. It uses Python-compatible
+regular-expression syntax through the automatically installed `regex` package.
+Patterns are limited to 4,096 characters; matches have a 0.1-second timeout and
+the fallback has a five-second search budget. Invalid or timed-out searches
+return no results. The optional external tools use their own regex
+engines, ignore-file rules, and Markdown file-type definitions, so advanced
+patterns and file selection can differ. The fallback does not interpret
+`.gitignore` files.
