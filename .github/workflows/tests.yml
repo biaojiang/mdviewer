@@ -10,7 +10,8 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python: ['3.10', '3.14']
         include:
-          - os: ubuntu-latest
+          # Ubuntu 26.04 runner images no longer bundle Python 3.8.
+          - os: ubuntu-22.04
             python: '3.8'
     runs-on: ${{ matrix.os }}
     steps:
