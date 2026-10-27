@@ -65,13 +65,16 @@ ul i {
   font-weight: 500;
 }
 
-#print-btn {
+#print-btn,
+#latex-export-btn {
   margin: 1em 0;
   padding: 0.5em 1em;
   background: #eee;
   border: 1px solid #ccc;
   cursor: pointer;
   font-size: 0.95em;
+  color: inherit;
+  text-decoration: none;
 }
 
 /* GitHub Markdown CSS adds brackets around footnote references. The

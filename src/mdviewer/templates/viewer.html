@@ -95,9 +95,18 @@
     >
       <i class="fas fa-print"></i> Export
     </button>
+    {% if content %}
+    <a
+      href="{{ url_for('export_latex', filename=filename) }}"
+      id="latex-export-btn"
+      title="Compile and download a LaTeX PDF"
+    >
+      <i class="fas fa-file-pdf"></i> LaTeX PDF
+    </a>
+    {% endif %}
     <style>
       @media print {
-        #print-btn {
+        #print-btn, #latex-export-btn {
           display: none !important;
         }
       }

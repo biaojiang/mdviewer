@@ -1,8 +1,13 @@
 import errno
+import io
 import os
 import re
+import shutil
 import socket
+import subprocess
+import tempfile
 from contextlib import contextmanager
+from pathlib import Path
 
 from bs4 import BeautifulSoup
 from flask import Flask, abort, render_template, request, send_file
@@ -29,6 +34,9 @@ md = (
 )
 MARKDOWN_ROOT = os.path.abspath(".")
 EXCLUDED_DIRS = {'.git', '.venv', '__pycache__', 'node_modules', '.ruff_cache'}
+LATEX_REPO = os.environ.get(
+    "MDVIEWER_LATEX_REPO", "/Volumes/Work/repos/md-to-lualatex"
+)
 
 
 def find_available_port(host, preferred_port):
@@ -165,6 +173,71 @@ def view_markdown(filename):
     return render_template(
         "viewer.html", content=str(soup), entries=None, filename=filename
     )
+
+
+@app.route("/export/latex/<path:filename>")
+def export_latex(filename):
+    """Compile the selected Markdown file with the md-to-lualatex project."""
+    with document_path(filename) as opened:
+        if opened.is_dir or not filename.lower().endswith(".md"):
+            abort(404)
+        with opened.binary_stream() as stream:
+            markdown = stream.read()
+
+    repo = Path(LATEX_REPO)
+    required = [
+        "build.sh", "main.tex", "preamble.tex", "metadata.tex", "emoji.lua"
+    ]
+    if (
+        not all((repo / name).is_file() for name in required)
+        or not (repo / "style").is_dir()
+        or not (repo / "fonts").is_dir()
+    ):
+        return "LaTeX export is unavailable: md-to-lualatex files were not found.", 503
+
+    with tempfile.TemporaryDirectory(prefix="mdviewer-latex-") as work:
+        workdir = Path(work)
+        for name in required:
+            shutil.copy2(repo / name, workdir / name)
+        shutil.copytree(repo / "style", workdir / "style")
+        shutil.copytree(repo / "fonts", workdir / "fonts")
+        source = workdir / Path(filename).name
+        source.write_bytes(markdown)
+        output = workdir / (source.stem + ".pdf")
+
+        # The upstream build script opens Preview on macOS; suppress that UI side effect.
+        bin_dir = workdir / "bin"
+        bin_dir.mkdir()
+        opener = bin_dir / "open"
+        opener.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+        opener.chmod(0o755)
+        env = os.environ.copy()
+        env["PATH"] = str(bin_dir) + os.pathsep + env.get("PATH", "")
+        try:
+            result = subprocess.run(
+                ["bash", str(workdir / "build.sh"), "--force", "-o", str(output), str(source)],
+                cwd=workdir,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=180,
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            return f"LaTeX export failed: {exc}", 503
+        if result.returncode or not output.is_file():
+            detail = (result.stderr or result.stdout or "LaTeX compilation failed.")[-3000:]
+            log_path = workdir / "main.log"
+            if log_path.is_file():
+                detail += "\n\n--- LaTeX log (tail) ---\n"
+                detail += log_path.read_text(errors="replace")[-6000:]
+            return detail, 500
+        return send_file(
+            io.BytesIO(output.read_bytes()),
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=source.stem + ".pdf",
+        )
 
 
 # Search functionality

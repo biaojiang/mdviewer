@@ -15,7 +15,8 @@ A local Markdown documentation browser that:
 - Supports filename/content search with built-in Python search; optionally uses `fd`/`fdfind` or `rg` when installed
 - Auto-reloads edited files
 - Dark/light mode toggle
-- Export/Print to PDF
+- Print or save to PDF through the browser
+- Optional LaTeX PDF export add-on (requires the separate `md-to-lualatex` project)
 - Breadcrumb navigation with folder/file icons
 - Highlights current file in tree and auto-expands
 
@@ -96,6 +97,28 @@ Search works immediately with no extra tools. If `fd` (or Debian’s `fdfind`)
 and `rg` are on PATH, mdviewer uses them automatically for faster searches.
 Missing tools use the built-in Python backend; no binaries are downloaded.
 
+### Optional: LaTeX PDF export
+
+The **LaTeX PDF** button is an optional add-on in mdviewer 0.5.0. You can keep
+using mdviewer and the regular browser print/export without installing Pandoc,
+LaTeX, or the separate converter. When enabled, the button uses the
+[`md-to-lualatex` project](https://github.com/biaojiang/md-to-lualatex) to
+compile the current Markdown file.
+
+To enable LaTeX export, clone or install `md-to-lualatex` on the machine
+running mdviewer, and install its prerequisites: Pandoc and a LuaLaTeX toolchain
+that provides `latexmk`. The project bundles its monochrome Noto Emoji font and
+Pandoc emoji filter. Point mdviewer at the checkout by setting
+`MDVIEWER_LATEX_REPO` before launching it. The default path is
+`/Volumes/Work/repos/md-to-lualatex`.
+
+For example, in zsh:
+
+```bash
+export MDVIEWER_LATEX_REPO="$HOME/path/to/md-to-lualatex"
+mdviewer ~/Documents/notes
+```
+
 
 **Optionally add an alias:**
 
@@ -157,7 +180,8 @@ mdv --no-open # serve without opening a browser
 - ✅ Font Awesome icons for folders/files
 - ✅ Breadcrumb that reflects navigation path
 - ✅ Highlight + auto-expand tree for active file
-- ✅ PDF/Print export button with clean print CSS
+- ✅ Browser print/export to PDF
+- ✅ Optional LaTeX PDF export add-on via `md-to-lualatex` (see setup above)
 
 ---
 
